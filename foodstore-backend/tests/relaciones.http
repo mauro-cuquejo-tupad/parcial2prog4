@@ -1,0 +1,27 @@
+@baseUrl = http://localhost:8000/api/v1
+
+### Clasificar producto en una categoria (como principal)
+POST {{baseUrl}}/productos/1/categorias
+Content-Type: application/json
+
+{
+  "categoria_id": 1,
+  "es_principal": true
+}
+
+### Clasificar producto en una segunda categoria (secundaria)
+POST {{baseUrl}}/productos/1/categorias
+Content-Type: application/json
+
+{
+  "categoria_id": 2,
+  "es_principal": false
+}
+
+### Listar categorias de un producto
+GET {{baseUrl}}/productos/1/categorias
+Accept: application/json
+
+### Filtrar productos por categoria
+GET {{baseUrl}}/productos?categoria_id=1
+Accept: application/json

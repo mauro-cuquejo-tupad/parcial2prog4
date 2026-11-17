@@ -1,0 +1,59 @@
+@baseUrl = http://localhost:8000/api/v1
+
+### Listar todos los productos
+GET {{baseUrl}}/productos
+Accept: application/json
+
+### Listar productos con filtros y paginacion
+GET {{baseUrl}}/productos?skip=0&limit=5&activo=true&disponible=true
+Accept: application/json
+
+### Buscar productos por texto
+GET {{baseUrl}}/productos?search=manzana
+Accept: application/json
+
+### Obtener detalle de un producto por ID
+GET {{baseUrl}}/productos/1
+Accept: application/json
+
+### Crear un producto (unidad contable)
+POST {{baseUrl}}/productos
+Content-Type: application/json
+
+{
+  "nombre": "Alfajor de Chocolate",
+  "descripcion": "Alfajor relleno con dulce de leche",
+  "precio_base": 1200.50,
+  "stock_cantidad": 20,
+  "unidad_venta_id": 5,
+  "disponible": true
+}
+
+### Crear un producto (unidad peso / decimal)
+POST {{baseUrl}}/productos
+Content-Type: application/json
+
+{
+  "nombre": "Manzanas Rojas",
+  "descripcion": "Manzanas seleccionadas por kilo",
+  "precio_base": 2500.00,
+  "stock_cantidad": 15.500,
+  "unidad_venta_id": 1,
+  "disponible": true
+}
+
+### Actualizar producto
+PUT {{baseUrl}}/productos/1
+Content-Type: application/json
+
+{
+  "nombre": "Alfajor de Chocolate Premium",
+  "descripcion": "Relleno con abundante dulce de leche y cobertura de chocolate amargo",
+  "precio_base": 1500.00,
+  "stock_cantidad": 35,
+  "unidad_venta_id": 5,
+  "disponible": true
+}
+
+### Anular producto (baja logica)
+DELETE {{baseUrl}}/productos/1
