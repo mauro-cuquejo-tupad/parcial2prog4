@@ -1,6 +1,7 @@
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import type { Producto, ProductoInput } from "../types/producto";
 import type { UnidadMedida } from "../types/unidadMedida";
+import { useEscape } from "../hooks/useEscape";
 
 interface ProductoModalProps {
   producto: Producto | null;
@@ -62,6 +63,9 @@ export const ProductoModal = ({
       setGuardando(false);
     }
   };
+
+  // Hook personalizado para cerrar el modal al presionar tecla Escape
+  useEscape(onCancelar);
 
   const estiloCampo =
     "rounded-xl border border-[#cbd5e1] bg-white px-3.5 py-2 text-sm text-[#0f172a] placeholder-[#94a3b8] focus:border-[#0d3b46] focus:outline-none focus:ring-2 focus:ring-[#0d3b46]/10";

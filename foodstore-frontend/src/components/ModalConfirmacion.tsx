@@ -1,5 +1,8 @@
+import type { ReactNode } from "react";
+import { useEscape } from "../hooks/useEscape";
+
 interface ModalConfirmacionProps {
-  mensaje: string;
+  mensaje: ReactNode;
   onConfirmar: () => void;
   onCancelar: () => void;
 }
@@ -9,6 +12,7 @@ export const ModalConfirmacion = ({
   onConfirmar,
   onCancelar,
 }: ModalConfirmacionProps) => {
+  useEscape(onCancelar);
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0b272f]/50 p-4 backdrop-blur-xs">
       <div className="flex w-full max-w-sm flex-col gap-4 rounded-2xl bg-white border border-[#e2e8f0] p-6 shadow-xl">

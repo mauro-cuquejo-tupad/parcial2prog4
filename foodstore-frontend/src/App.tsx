@@ -157,7 +157,12 @@ export const App = () => {
 
       {modalConfirmarAbierto && productoParaAnular && (
         <ModalConfirmacion
-          mensaje={`¿Estás seguro de que deseas anular el producto "${productoParaAnular.nombre}"?`}
+          mensaje={
+            <>
+              ¿Estás seguro de que deseas anular el producto{" "}
+              <strong className="font-bold text-[#0d3b46]">{productoParaAnular.nombre}</strong>?
+            </>
+          }
           onConfirmar={confirmarAnulacionProducto}
           onCancelar={cerrarModalAnular}
         />
@@ -174,7 +179,7 @@ export const App = () => {
               Productos disponibles
             </h1>
             <p className="text-sm text-[#64748b] mt-1">
-              Administrá precios, stock y estado de los productos en tiempo real.
+              Administrá precios, stock y estado de los productos.
             </p>
           </div>
 
@@ -189,7 +194,7 @@ export const App = () => {
               disabled={cargando || unidades.length === 0}
               className="inline-flex items-center gap-2 rounded-xl bg-[#0d3b46] px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#07242b] disabled:opacity-40 transition"
             >
-              <span>+ Nuevo producto</span>
+              <span className="hidden md:inline">✚ Nuevo producto</span>
             </button>
           </div>
         </div>

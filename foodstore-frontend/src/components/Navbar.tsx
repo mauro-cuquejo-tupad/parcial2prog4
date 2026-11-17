@@ -20,7 +20,7 @@ export const Navbar = ({ nombreApp }: NavbarProps) => {
       </div>
       <div className="flex items-center gap-2">
         <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500/20 text-xs font-semibold text-emerald-300 border border-emerald-500/30">
-          MC
+          <img src="../src/assets/perfil.png" alt="foto perfil" className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500/20 text-xs font-semibold text-emerald-300 border border-emerald-500/30" />
         </div>
         <div className="text-xs text-slate-300">
           Mauro Cuquejo
