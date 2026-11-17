@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
+import os
 from fastapi import FastAPI
-from app.core.database import create_db_and_tables
+from app.core.database import create_db_and_tables, reset_database
 import app.modules.productos.model  # Importante: registra las tablas en SQLModel.metadata
 import app.modules.categorias.model
 import app.modules.unidades_medida.model
@@ -13,7 +14,12 @@ from app.core.seed import seed_unidades
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    create_db_and_tables() # Nota: Reemplazo el on_event por lifespan para evitar usar un decorador deprecado.
+    create_db_and_tables()
+
+    # Si se configura RESET_DB=true en el .env, trunca las tablas y reinicia los IDs
+    if os.getenv("RESET_DB", "false").lower() in ("true", "1", "yes"):
+        reset_database()
+
     seed_unidades()
     yield
 

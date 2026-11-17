@@ -1,59 +1,276 @@
+# Pruebas del módulo Productos
+# Para reiniciar tablas y secuencias de ID, activar RESET_DB=true en el archivo .env
+# IDs de unidades (según el seed): 1 kilogramo, 2 gramo, 3 litro, 4 mililitro, 5 pieza, 6 docena
+
 @baseUrl = http://localhost:8000/api/v1
 
-### Listar todos los productos
+
+## 1) GET /unidades-medida (Catálogo de Unidades)
+
+### 1.1 Listar unidades de medida - 200
+GET {{baseUrl}}/unidades-medida
+Accept: application/json
+
+
+## 2) POST /productos (Creación y Validaciones)
+
+### 2.1 Crear producto Sandía por kilogramo (peso / decimal) - 201
+POST {{baseUrl}}/productos
+Content-Type: application/json
+
+{
+  "nombre": "Sandía",
+  "descripcion": "Sandía fresca seleccionada por kilo",
+  "precio_base": 1200.00,
+  "unidad_venta_id": 1,
+  "stock_cantidad": 15.5,
+  "disponible": true
+}
+
+### 2.2 Crear producto Milanesa a la napolitana por pieza (contable) - 201
+POST {{baseUrl}}/productos
+Content-Type: application/json
+
+{
+  "nombre": "Milanesa a la napolitana",
+  "descripcion": "Milanesa de carne con salsa, jamón y queso gratinado",
+  "precio_base": 5800.00,
+  "unidad_venta_id": 5,
+  "stock_cantidad": 8,
+  "disponible": true
+}
+
+### 2.3 Crear producto Licuado de frutilla sin stock (default 0) - 201
+POST {{baseUrl}}/productos
+Content-Type: application/json
+
+{
+  "nombre": "Licuado de frutilla",
+  "descripcion": "Jarra de licuado con leche o agua",
+  "precio_base": 2400.00,
+  "unidad_venta_id": 3,
+  "disponible": true
+}
+
+### 2.4 Error por nombre menor a 3 caracteres - 422
+POST {{baseUrl}}/productos
+Content-Type: application/json
+
+{
+  "nombre": "Té",
+  "precio_base": 800.00,
+  "unidad_venta_id": 5
+}
+
+### 2.5 Error por precio negativo - 422
+POST {{baseUrl}}/productos
+Content-Type: application/json
+
+{
+  "nombre": "Pizza con morrón",
+  "precio_base": -4500.00,
+  "unidad_venta_id": 5
+}
+
+### 2.6 Error por stock negativo - 422
+POST {{baseUrl}}/productos
+Content-Type: application/json
+
+{
+  "nombre": "Pizza con morrón",
+  "precio_base": 4500.00,
+  "unidad_venta_id": 5,
+  "stock_cantidad": -2
+}
+
+### 2.7 Error por unidad de venta faltante - 422
+POST {{baseUrl}}/productos
+Content-Type: application/json
+
+{
+  "nombre": "Pizza con morrón",
+  "precio_base": 4500.00
+}
+
+### 2.8 Error al enviar stock decimal en unidad contable - 422
+POST {{baseUrl}}/productos
+Content-Type: application/json
+
+{
+  "nombre": "Empanada de jamón y queso",
+  "precio_base": 1100.00,
+  "unidad_venta_id": 5,
+  "stock_cantidad": 4.5
+}
+
+### 2.9 Error por unidad de venta inexistente - 404
+POST {{baseUrl}}/productos
+Content-Type: application/json
+
+{
+  "nombre": "Pizza con morrón",
+  "precio_base": 4500.00,
+  "unidad_venta_id": 999
+}
+
+### 2.10 Error por nombre de producto repetido activo - 409
+POST {{baseUrl}}/productos
+Content-Type: application/json
+
+{
+  "nombre": "Milanesa a la napolitana",
+  "precio_base": 6000.00,
+  "unidad_venta_id": 5
+}
+
+### 2.11 Crear nuevo producto reutilizando el nombre liberado por un anulado - 201
+POST {{baseUrl}}/productos
+Content-Type: application/json
+
+{
+  "nombre": "Licuado de frutilla",
+  "descripcion": "Nueva receta con frutos rojos",
+  "precio_base": 2700.00,
+  "unidad_venta_id": 3,
+  "stock_cantidad": 4
+}
+
+
+## 3) GET /productos (Listado, Paginación y Filtros)
+
+### 3.1 Listar productos activos por defecto - 200
 GET {{baseUrl}}/productos
 Accept: application/json
 
-### Listar productos con filtros y paginacion
-GET {{baseUrl}}/productos?skip=0&limit=5&activo=true&disponible=true
+### 3.2 Paginación primera página (skip 0, limit 2) - 200
+GET {{baseUrl}}/productos?skip=0&limit=2
 Accept: application/json
 
-### Buscar productos por texto
-GET {{baseUrl}}/productos?search=manzana
+### 3.3 Paginación segunda página (skip 2, limit 2) - 200
+GET {{baseUrl}}/productos?skip=2&limit=2
 Accept: application/json
 
-### Obtener detalle de un producto por ID
+### 3.4 Error por limit fuera de rango (menor a 1) - 422
+GET {{baseUrl}}/productos?limit=0
+Accept: application/json
+
+### 3.5 Búsqueda por texto en nombre insensible a mayúsculas - 200
+GET {{baseUrl}}/productos?search=MILANESA
+Accept: application/json
+
+### 3.6 Filtrar productos por disponible false - 200
+GET {{baseUrl}}/productos?disponible=false
+Accept: application/json
+
+### 3.7 Filtrar productos por disponible true - 200
+GET {{baseUrl}}/productos?disponible=true
+Accept: application/json
+
+### 3.8 Filtrar por activo false (solo anulados) - 200
+GET {{baseUrl}}/productos?activo=false
+Accept: application/json
+
+
+## 4) GET /productos/{id} (Detalle de Producto)
+
+### 4.1 Detalle de producto con relaciones anidadas y hay_stock true - 200
 GET {{baseUrl}}/productos/1
 Accept: application/json
 
-### Crear un producto (unidad contable)
-POST {{baseUrl}}/productos
+### 4.2 Detalle tras actualizar stock a 0 (verificar hay_stock false) - 200
+GET {{baseUrl}}/productos/1
+Accept: application/json
+
+### 4.3 Detalle de producto inexistente - 404
+GET {{baseUrl}}/productos/999
+Accept: application/json
+
+### 4.4 Detalle de producto anulado (activo false, anulado_at presente) - 200
+GET {{baseUrl}}/productos/3
+Accept: application/json
+
+
+## 5) PUT /productos/{id} (Actualización y Validaciones)
+
+### 5.1 Pausar la venta de Milanesa a la napolitana (disponible false) - 200
+PUT {{baseUrl}}/productos/2
 Content-Type: application/json
 
 {
-  "nombre": "Alfajor de Chocolate",
-  "descripcion": "Alfajor relleno con dulce de leche",
-  "precio_base": 1200.50,
-  "stock_cantidad": 20,
+  "nombre": "Milanesa a la napolitana",
+  "descripcion": "Milanesa de carne con salsa, jamón y queso gratinado",
+  "precio_base": 5800.00,
   "unidad_venta_id": 5,
-  "disponible": true
+  "stock_cantidad": 8,
+  "disponible": false
 }
 
-### Crear un producto (unidad peso / decimal)
-POST {{baseUrl}}/productos
-Content-Type: application/json
-
-{
-  "nombre": "Manzanas Rojas",
-  "descripcion": "Manzanas seleccionadas por kilo",
-  "precio_base": 2500.00,
-  "stock_cantidad": 15.500,
-  "unidad_venta_id": 1,
-  "disponible": true
-}
-
-### Actualizar producto
+### 5.2 Actualizar stock de Sandía a 0 (hay_stock pasa a false) - 200
 PUT {{baseUrl}}/productos/1
 Content-Type: application/json
 
 {
-  "nombre": "Alfajor de Chocolate Premium",
-  "descripcion": "Relleno con abundante dulce de leche y cobertura de chocolate amargo",
-  "precio_base": 1500.00,
-  "stock_cantidad": 35,
-  "unidad_venta_id": 5,
+  "nombre": "Sandía",
+  "descripcion": "Sandía fresca seleccionada por kilo",
+  "precio_base": 1200.00,
+  "unidad_venta_id": 1,
+  "stock_cantidad": 0,
   "disponible": true
 }
 
-### Anular producto (baja logica)
-DELETE {{baseUrl}}/productos/1
+### 5.3 Error al cambiar a unidad contable enviando stock decimal - 422
+PUT {{baseUrl}}/productos/1
+Content-Type: application/json
+
+{
+  "nombre": "Sandía",
+  "descripcion": "Sandía fresca seleccionada por kilo",
+  "precio_base": 1200.00,
+  "unidad_venta_id": 6,
+  "stock_cantidad": 3.5,
+  "disponible": true
+}
+
+### 5.4 Error al actualizar con el nombre de otro producto activo - 409
+PUT {{baseUrl}}/productos/1
+Content-Type: application/json
+
+{
+  "nombre": "Milanesa a la napolitana",
+  "precio_base": 1200.00,
+  "unidad_venta_id": 1,
+  "stock_cantidad": 0,
+  "disponible": true
+}
+
+### 5.5 Error al actualizar un producto inexistente - 404
+PUT {{baseUrl}}/productos/999
+Content-Type: application/json
+
+{
+  "nombre": "No existe",
+  "precio_base": 100.00,
+  "unidad_venta_id": 1
+}
+
+### 5.6 Error al actualizar un producto anulado - 409
+PUT {{baseUrl}}/productos/3
+Content-Type: application/json
+
+{
+  "nombre": "Licuado de frutilla",
+  "precio_base": 2400.00,
+  "unidad_venta_id": 3
+}
+
+
+## 6) DELETE /productos/{id} (Baja Lógica)
+
+### 6.1 Anular Licuado de frutilla - 204
+DELETE {{baseUrl}}/productos/3
+
+### 6.2 Error al intentar anular un producto ya anulado - 409
+DELETE {{baseUrl}}/productos/3
+
+### 6.3 Error al anular un producto inexistente - 404
+DELETE {{baseUrl}}/productos/999
